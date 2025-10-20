@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: sunrise
+Version: 0.1.0
+Home-page: https://git.rz.uni-augsburg.de/qalg-a/project-sunrise.git
+Author: Chair of Quantum Algorithmics at Augsburg University (Germany)
+License-File: LICENSE
+Requires-Dist: tequila-basic
+Requires-Dist: numpy
+Requires-Dist: openfermion
+Requires-Dist: autograd
+Requires-Dist: openfermion~=1.0
+Requires-Dist: qulacs
+Requires-Dist: pytest
+Requires-Dist: setuptools
+Requires-Dist: qpic
+Requires-Dist: pyscf
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-dist
