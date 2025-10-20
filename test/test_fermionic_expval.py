@@ -1,4 +1,3 @@
-
 import numpy as np
 import scipy.optimize
 from matplotlib import pyplot as plt
@@ -20,11 +19,9 @@ HAS_FQE = "fqe" in INSTALLED_FERMIONIC_BACKENDS
 @pytest.mark.parametrize("geom",["H 0.0 0.0 0.0\nH 0.0 0.0 1.6\nH 0.0 0.0 3.2\nH 0.0 0.0 4.8","H 0. 0. 0.\n Be 0. 0. 1.6\n H 0. 0. 3.2"])
 @pytest.mark.parametrize('backend',INSTALLED_FERMIONIC_BACKENDS)
 def test_spa(geom,backend):
-    if backend == "tequila":
-        pytest.skip("Skipping tequila")
     mol = tq.Molecule(geometry=geom,basis_set='sto-3g',transformation='reordered-jordan-wigner').use_native_orbitals()
     edges = sn.Molecule(geometry=geom,basis_set='sto-3g',nature='hybrid').get_spa_edges()
-    U = mol.make_ansatz("SPA",edges=edges)
+    U = mol.make_ansatz("SPA",edges=edges,optimize=backend!='tequila')
     circuit = sn.FCircuit.from_edges(edges=edges,n_orb=mol.n_orbitals)
     expval = tq.ExpectationValue(H=mol.make_hamiltonian(),U=U)
     sunval = Braket(molecule=mol,ket=circuit,backend=backend)
@@ -41,8 +38,6 @@ def test_spa(geom,backend):
 @pytest.mark.parametrize("geom",["H 0.0 0.0 0.0\nH 0.0 0.0 1.6\nH 0.0 0.0 3.2\nH 0.0 0.0 4.8","H 0. 0. 0.\n Be 0. 0. 1.6\n H 0. 0. 3.2"])
 @pytest.mark.parametrize('backend',INSTALLED_FERMIONIC_BACKENDS)
 def test_upccsd(geom,backend):
-    if backend == "tequila":
-        pytest.skip("Skipping tequila")
     mol = tq.Molecule(geometry=geom,basis_set='sto-3g',transformation='reordered-jordan-wigner')
     U = mol.make_ansatz("UpCCSD")
     fmol = sn.Molecule(geometry=geom,basis_set='sto-3g',nature='fermionic')
@@ -55,8 +50,6 @@ def test_upccsd(geom,backend):
 
 @pytest.mark.parametrize('backend',INSTALLED_FERMIONIC_BACKENDS)
 def test_transition(backend):
-    if backend == "tequila":
-        pytest.skip("Skipping tequila")
     geom = 'H 0. 0. 0. \n H 0. 0. 1. \n H 0. 0. 2. \n H 0. 0. 3.'
     mol = tq.Molecule(geometry=geom,basis_set='sto-3g',transformation='reordered-jordan-wigner').use_native_orbitals()
     H = mol.make_hamiltonian()
@@ -75,12 +68,10 @@ def test_transition(backend):
 @pytest.mark.parametrize("geom",["H 0.0 0.0 0.0\nH 0.0 0.0 1.6\nH 0.0 0.0 3.2\nH 0.0 0.0 4.8","H 0. 0. 0.\n Be 0. 0. 1.6\n H 0. 0. 3.2"])
 @pytest.mark.parametrize('backend',INSTALLED_FERMIONIC_BACKENDS)
 def test_maped_variables(geom,backend):
-    if backend == "tequila":
-        pytest.skip("Skipping tequila")
     random.seed(datetime.now().timestamp())
     mol = tq.Molecule(geometry=geom,basis_set='sto-3g',transformation='reordered-jordan-wigner').use_native_orbitals()
     edges = sn.Molecule(geometry=geom,basis_set='sto-3g',nature='hybrid').get_spa_edges()
-    U = mol.make_ansatz("SPA",edges=edges)
+    U = mol.make_ansatz("SPA",edges=edges,optimize=backend!='tequila')
     mapa = {d:random.random()*np.pi for d in U.extract_variables()}
     U = U.map_variables(mapa)
     circuit = sn.FCircuit.from_edges(edges=edges,n_orb=mol.n_orbitals)
