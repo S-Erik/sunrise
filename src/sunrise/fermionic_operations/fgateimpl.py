@@ -166,5 +166,8 @@ class UCImpl(FGateImpl):
     
 class PhaseImpl(FGateImpl):
     def __init__(self,i, variables:typing.Union[typing.Hashable, numbers.Real, Variable, FixedVariable]|None=None):
-        super().__init__([[(2*i,2*i)]], variables, False)
+        super().__init__([[(i,i)]], variables, False)
         self._name = 'Ph'
+
+    def __str__(self):
+        return f'{self.name}(Target = {(self.indices[0][0][0],)} Variable = {repr(self.variables)})'

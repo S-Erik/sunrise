@@ -1,7 +1,8 @@
 import tencirchem as tcc
 from sunrise.expval.tcc_engine.braket import EXPVAL
 from ..fermionic_operations.circuit import FCircuit
-from tequila import TequilaException,Molecule,QubitWaveFunction,simulate,Variable,Objective,assign_variable,grad
+from tequila import TequilaException,Molecule,QubitWaveFunction,simulate,Variable,Objective,assign_variable
+from tequila import grad as tq_grad
 from tequila.objective.objective import Variables,FixedVariable
 from tequila.quantumchemistry.chemistry_tools import NBodyTensor
 from tequila.quantumchemistry import qc_base
@@ -122,7 +123,13 @@ class TCCBraket:
                 e_core = kwargs['c']
                 kwargs.pop('c')    
             else: e_core = 0.
-            mo_coeff = eye(len(int1e)) 
+            # if 'mo_coeff' in kwargs:
+            #     mo_coeff = kwargs['mo_coeff']
+            #     kwargs.pop('mo_coeff')
+            # elif 'orbital_coefficients' in kwargs:
+            #     mo_coeff = kwargs['orbital_coefficients']
+            #     kwargs.pop('orbital_coefficients')
+            mo_coeff = eye(len(int1e)) #IDEA The intengrals refer to the MO, so the active space stuff is kept out of the braket 
             if 'ovlp' in kwargs:
                 ovlp = kwargs['ovlp']
                 kwargs.pop('ovlp')
@@ -239,7 +246,7 @@ class TCCBraket:
                     braket.bra = k
                     braket.variables_bra = v
                     idx = k.index(exct)
-                    ph = grad(v[idx],variable) if not isinstance(v[idx],Union[Variable,FixedVariable]) else 1.
+                    ph = tq_grad(v[idx],variable) if not isinstance(v[idx],Union[Variable,FixedVariable]) else 1.
                     v[idx] +=  s[ket]*pi/2 
                     for p in reversed(p0):
                         k.insert(idx,[p])
@@ -252,7 +259,7 @@ class TCCBraket:
                     if exct not in k:
                         return 0.
                     idx = k.index(exct)
-                    ph = grad(v[idx],variable) if not isinstance(v[idx],Variable) else 1.
+                    ph = tq_grad(v[idx],variable) if not isinstance(v[idx],Variable) else 1.
                     v[idx] +=  s[ket]*pi/2
                     for p in reversed(p0):
                         k.insert(idx,[p])
@@ -264,7 +271,7 @@ class TCCBraket:
                     k = deepcopy(braket.ket)
                     v = deepcopy(braket.params_ket)
                     idx = k.index(exct)
-                    ph = grad(v[idx],variable) if not isinstance(v[idx],Variable) else 1.
+                    ph = tq_grad(v[idx],variable) if not isinstance(v[idx],Variable) else 1.
                     v[idx] +=  s[ket]*pi/2 
                     for p in reversed(p0):
                         k.insert(idx,[p])
@@ -277,14 +284,14 @@ class TCCBraket:
                     if exct not in k:
                         return 0.
                     idx = k.index(exct)
-                    ph = grad(v[idx],variable) if not isinstance(v[idx],Variable) else 1.
+                    ph = tq_grad(v[idx],variable) if not isinstance(v[idx],Variable) else 1.
                     v[idx] +=  s[ket]*pi/2
                     for p in reversed(p0):
                         k.insert(idx,[p])
                         v.insert(idx,assign_variable(s[not p0sign]*pi)) 
                     braket.bra = k
                     braket.variables_bra = v
-            return s[ket]*s[(len(p0)//2)%2]*s[p0sign]*ph*Objective([braket])
+            return s[ket]*s[(len(p0)//2)%2]*s[p0sign]*ph*Objective([braket]) #TODO: Check this correct
         if variable is None:
             # None means that all components are created
             variables = self.extract_variables()
