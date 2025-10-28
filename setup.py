@@ -26,7 +26,7 @@ extras_3_6 = ["dataclasses"]
 extras_3_7 = []
 additional = []
 
-requirements = read_requirements("requirements.txt")
+requirements = read_requirements()
 
 try:
     with open("README.md", "r") as f:
